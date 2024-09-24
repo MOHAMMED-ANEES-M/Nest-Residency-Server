@@ -8,7 +8,6 @@ const saltRounds = 10;
 const bcrypt = require('bcrypt');
 
 
-
 exports.register = asyncHandler(async (req, res) => {
     const { fname, lname, email, password, role } = req.body
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,6 +44,7 @@ exports.register = asyncHandler(async (req, res) => {
 
 exports.login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    
     if (!email || !password) {
         res.status(400)
         throw new Error("All fields are mandatory")
@@ -83,6 +83,13 @@ exports.login = asyncHandler(async (req, res) => {
     });
     return res.status(200).json({ message: "Successfully Logged In", user, accessToken, refreshToken });
 });
+
+
+exports.currentUser = asyncHandler(async (req,res) => {
+    res.json(req.user)
+    // console.log('Current user:',req.user);
+})
+
 
 exports.requestPasswordReset = async (req, res) => {
     const  email  = 'mhdaneeslm10@gmail.com';
@@ -157,3 +164,24 @@ exports.resetPassword = async (req, res) => {
 
     res.status(200).json({ message: "Password has been reset successfully" });
 };
+
+exports.logoutUser = asyncHandler(async (req, res) => {
+    const { accessToken, refreshToken } = req.cookies;
+
+    if (!accessToken || !refreshToken) {
+        res.status(400);
+        throw new Error("Couldn't find token");
+    }
+
+    // jwt.verify(accessToken, process.env.JWT_SECRET, (err, user) => {
+    //     if (err) {
+    //         console.log(err);
+    //         res.status(403);
+    //         throw new Error("Authentication failed");
+            
+    //     }
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+        return res.status(200).json({ message: "Successfully Logged Out" });
+    // });
+});

@@ -1,10 +1,13 @@
 const express = require('express');
-const { login, register } = require('../controllers/authController');
+const { login, register, currentUser, logoutUser } = require('../controllers/authController');
 const refreshToken = require('../middleware/refreshTokenHandler');
+const verifyToken = require('../middleware/verifyTokenHandler');
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.get('/user', verifyToken, currentUser);
+router.post('/logout',verifyToken, logoutUser);
 router.post('/refresh', refreshToken);
 
 module.exports = router;
