@@ -1,8 +1,8 @@
-const Booking = require('../models/Booking');
 const asyncHandler = require('express-async-handler');
+const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 
-const rooms = ['001', '002', '003', '004', '005'];
+const rooms = ['001', '002', '003', '004'];
 
 
 // Check availability of all rooms
