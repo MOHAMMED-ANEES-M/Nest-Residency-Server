@@ -57,10 +57,11 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       // console.log('capture response', captureResponse);
       
       // Step 2: Create Payment Document
+      const amountInINR = amount / 100;
       const payment = new Payment({
         orderId: razorId,
         paymentId,
-        amount,
+        amount: amountInINR,
         paymentStatus: 'captured',
       });
       const savedPayment = await payment.save();
@@ -77,6 +78,7 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         phone: guestDetails.phone,
         email: guestDetails.email,
         paymentId: savedPayment._id, 
+        bookingMode: 'Online',
       });
       const savedBooking = await booking.save();
       console.log('savedbooking', savedBooking);

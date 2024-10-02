@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler');
 const Booking = require('../models/Booking');
-const Payment = require('../models/Payment');
 
 const rooms = ['001', '002', '003', '004'];
 
@@ -22,7 +21,8 @@ exports.checkAvailability = asyncHandler(async (req, res) => {
     roomId: { $in: rooms },
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
-    ]
+    ], 
+    status: 'Booked'
   });
 
   // Get the unique room IDs that are already booked
@@ -40,7 +40,7 @@ exports.checkAvailability = asyncHandler(async (req, res) => {
 
 // Book a room
 exports.bookRoom = asyncHandler(async (req, res) => {
-  const { roomId, checkInDate, checkOutDate, paymentId, orderId, amount, fname, lname, phone, address } = req.body;
+  const { roomId, checkInDate, checkOutDate, fname, lname, phone, email } = req.body;
 
   const checkIn = new Date(checkInDate);
   const checkOut = new Date(checkOutDate);
@@ -55,46 +55,46 @@ exports.bookRoom = asyncHandler(async (req, res) => {
     roomId,
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
-    ]
+    ],
+    status: 'Booked'
   });
 
   if (existingBookings.length > 0) {
     return res.status(400).json({ message: 'Room is already booked for the selected dates' });
   }
 
-  const payment = new Payment({
-    orderId,
-    paymentId,
-    amount,
-    currency: 'INR',
-  });
+  // const payment = new Payment({
+  //   orderId,
+  //   paymentId,
+  //   amount,
+  //   currency: 'INR',
+  // });
 
-  await payment.save();
+  // await payment.save();
 
   // Create booking
   const newBooking = new Booking({
     roomId,
     checkInDate,
     checkOutDate,
-    payment: payment._id, // Reference the payment
+    bookingMode: 'Offline',
     fname,
     lname,
     phone,
-    address,
+    email,
   });
 
   await newBooking.save();
 
-  res.status(200).json({ message: 'Room booked successfully', booking: newBooking });
+  res.status(200).json({ success: true, message: 'Room booked successfully', booking: newBooking });
 });
 
 
   // Get all bookings (Admin access)
 exports.getAllBookings = asyncHandler(async (req, res) => {
-    const bookings = await Booking.find({})
-      .populate('roomId', 'roomType price');
-  
-    res.json(bookings);
+  const bookings = await Booking.find({})
+    .populate('paymentId'); 
+  res.json(bookings);
 });
 
 // Get a specific booking by ID
@@ -108,14 +108,20 @@ exports.getBookingById = asyncHandler(async (req, res) => {
   res.json(booking);
 });
 
-// Delete a booking (Admin access)
-exports.deleteBooking = asyncHandler(async (req, res) => {
+// Cancel a booking (Admin access)
+exports.cancelBooking = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(req.params.id);
 
   if (!booking) {
     return res.status(404).json({ message: 'Booking not found' });
   }
 
-  await booking.remove();
-  res.json({ message: 'Booking deleted successfully' });
+  // Update the status and add cancelReason without modifying required fields
+  booking.status = 'Cancelled';
+  booking.cancelReason = req.body.cancelReason;
+
+  // Save the updated booking document
+  await booking.save({ validateModifiedOnly: true }); // Only validate modified fields
+
+  res.json({ message: 'Booking cancelled successfully', booking });
 });
