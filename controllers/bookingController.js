@@ -99,7 +99,7 @@ exports.getAllBookings = asyncHandler(async (req, res) => {
 
 // Get a specific booking by ID
 exports.getBookingById = asyncHandler(async (req, res) => {
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id).populate('paymentId');
 
   if (!booking) {
     return res.status(404).json({ message: 'Booking not found' });
