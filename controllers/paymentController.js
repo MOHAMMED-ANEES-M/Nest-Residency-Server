@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
 const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
+const { sendBookingConfirmationEmail } = require('../services/emailService');
 
 // Razorpay instance
 const razorpay = new Razorpay({
@@ -40,23 +41,12 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
 // Verify the payment and create booking
 exports.verifyPayment = asyncHandler(async (req, res) => {
-  console.log('verifying...');
   const { razorId, paymentId, signature, amount, roomData, guestDetails } = req.body;
   const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
-  generated_signature = hmac_sha256(razorId + "|" + paymentId, key_secret);
-  console.log('generated:',generated_signature);
-  console.log('signature:',signature);
-
+  const generated_signature = hmac_sha256(razorId + "|" + paymentId, key_secret);
   if (generated_signature === signature) {
     try {
-      console.log('capturing...');
-      
-      // Step 1: Capture the payment
-      // const captureResponse = await razorpay.payments.capture(paymentId, amount);
-      // console.log('capture response', captureResponse);
-      
-      // Step 2: Create Payment Document
       const amountInINR = amount / 100;
       const payment = new Payment({
         orderId: razorId,
@@ -65,10 +55,7 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         paymentStatus: 'captured',
       });
       const savedPayment = await payment.save();
-      console.log('saved payment', savedPayment);
-      
 
-      // Step 3: Create Booking Document
       const booking = new Booking({
         roomId: roomData.roomId,
         checkInDate: roomData.checkInDate,
@@ -77,11 +64,21 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         lname: guestDetails.lname,
         phone: guestDetails.phone,
         email: guestDetails.email,
-        paymentId: savedPayment._id, 
+        paymentId: savedPayment._id,
         bookingMode: 'Online',
       });
       const savedBooking = await booking.save();
-      console.log('savedbooking', savedBooking);
+
+      await sendBookingConfirmationEmail(
+        guestDetails.email,
+        `${guestDetails.fname} ${guestDetails.lname}`,
+        roomData.roomId,
+        roomData.roomName,
+        roomData.checkInDate,
+        roomData.checkOutDate,
+        amountInINR,
+        process.env.APP_NAME
+      );
 
       res.json({
         success: true,
@@ -90,7 +87,8 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         payment: savedPayment,
       });
     } catch (error) {
-      console.log(error);
+      console.log(error, 'booking error');
+      
       res.status(500).json({
         success: false,
         message: 'Payment capture failed or booking creation failed',
