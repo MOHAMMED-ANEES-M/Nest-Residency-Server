@@ -1,4 +1,4 @@
-const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, hotelName) => `
+const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName) => `
   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
     <h2 style="color: #4CAF50;">Booking Confirmation - ${hotelName}</h2>
     <p>Dear ${guestName},</p>
@@ -10,6 +10,7 @@ const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, check
         <th style="padding: 12px; border: 1px solid #ddd;">Check-In Date</th>
         <th style="padding: 12px; border: 1px solid #ddd;">Check-Out Date</th>
         <th style="padding: 12px; border: 1px solid #ddd;">Total Price</th>
+        <th style="padding: 12px; border: 1px solid #ddd;">Payment ID</th>
       </tr>
       <tr>
         <td style="padding: 12px; border: 1px solid #ddd;">${roomNumber}</td>
@@ -17,6 +18,7 @@ const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, check
         <td style="padding: 12px; border: 1px solid #ddd;">${checkInDate}</td>
         <td style="padding: 12px; border: 1px solid #ddd;">${checkOutDate}</td>
         <td style="padding: 12px; border: 1px solid #ddd;">${totalPrice} INR</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${paymentId} INR</td>
       </tr>
     </table>
     <p>If you have any questions or need further assistance, feel free to reach out to us at our customer service. We look forward to welcoming you soon!</p>

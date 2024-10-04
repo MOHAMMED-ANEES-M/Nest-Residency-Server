@@ -57,7 +57,8 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       const savedPayment = await payment.save();
 
       const booking = new Booking({
-        roomId: roomData.roomId,
+        roomNumber: roomData.roomNumber,
+        roomType: roomData.roomType,
         checkInDate: roomData.checkInDate,
         checkOutDate: roomData.checkOutDate,
         fname: guestDetails.fname,
@@ -73,10 +74,11 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         guestDetails.email,
         `${guestDetails.fname} ${guestDetails.lname}`,
         roomData.roomId,
-        roomData.roomName,
+        roomData.roomType,
         roomData.checkInDate,
         roomData.checkOutDate,
         amountInINR,
+        savedPayment.paymentId,
         process.env.APP_NAME
       );
 

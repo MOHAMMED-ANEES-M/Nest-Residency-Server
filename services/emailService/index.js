@@ -30,9 +30,9 @@ const sendVerificationEmail = async (to, otp) => {
   await sendEmail(to, subject, html);
 };
 
-const sendBookingConfirmationEmail = async (to, guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, hotelName) => {
+const sendBookingConfirmationEmail = async (to, guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice,paymentId, hotelName) => {
   const subject = 'Booking Confirmation';
-  const html = template.bookingConfirmation(guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, hotelName);
+  const html = template.bookingConfirmation(guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName);
   await sendEmail(to, subject, html);
 };
 

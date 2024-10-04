@@ -1,8 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Booking = require('../models/Booking');
-
-const rooms = ['001', '002', '003', '004'];
-
+const Room = require('../models/Room');
 
 // Check availability of all rooms
 exports.checkAvailability = asyncHandler(async (req, res) => {
@@ -16,24 +14,34 @@ exports.checkAvailability = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid check-in or check-out date' });
   }
 
-  // Find all bookings that overlap with the selected check-in and check-out dates
+  // Step 1: Get all rooms from the Room model
+  const allRooms = await Room.find({});
+
+  // Step 2: Extract room numbers from the fetched rooms
+  const roomIds = allRooms.map(room => room.roomNumber);
+
+  // Step 3: Find all bookings that overlap with the selected check-in and check-out dates
   const overlappingBookings = await Booking.find({
-    roomId: { $in: rooms },
+    roomId: { $in: roomIds },
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
-    ], 
+    ],
     status: 'Booked'
   });
 
-  // Get the unique room IDs that are already booked
+  // Step 4: Get the unique room numbers that are already booked
   const bookedRooms = [...new Set(overlappingBookings.map(booking => booking.roomId))];
 
-  // Get the available rooms by filtering out the booked rooms
-  const availableRooms = rooms.filter(roomId => !bookedRooms.includes(roomId));
+  // Step 5: Filter out the available rooms from the full room data
+  const availableRooms = allRooms.filter(room => !bookedRooms.includes(room.roomNumber));
 
+  // Step 6: Prepare response containing full details of both available and booked rooms
+  const bookedRoomDetails = allRooms.filter(room => bookedRooms.includes(room.roomNumber));
+
+  // Step 7: Send available and booked rooms with full details to the frontend
   res.status(200).json({
     availableRooms,
-    bookedRooms,
+    bookedRooms: bookedRoomDetails, // Full details of booked rooms
   });
 });
 
