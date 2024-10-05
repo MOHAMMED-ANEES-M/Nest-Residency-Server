@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const BookingSchema = new mongoose.Schema({
   roomNumber: { type: String, required: true },
+  roomType: { type: String, required: true },
   checkInDate: { type: Date, required: true },
   checkOutDate: { type: Date, required: true },
   status: { type: String, default: 'Booked', required: true },
@@ -11,6 +12,8 @@ const BookingSchema = new mongoose.Schema({
   lname: { type: String, required: true },
   phone: { type: Number, required: true },
   email: { type: String, required: true }, 
+  specialRequest: { type: String }, 
+  gstNumber: { type: String }, 
   cancelReason: { type: String }, 
 });
 

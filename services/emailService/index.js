@@ -36,4 +36,10 @@ const sendBookingConfirmationEmail = async (to, guestName, roomNumber, roomName,
   await sendEmail(to, subject, html);
 };
 
-module.exports = { sendEmail, sendResetPasswordEmail, sendVerificationEmail, sendBookingConfirmationEmail };
+const sendBookingCancellationEmail = async (to, guestName, cancelReason, hotelName) => {
+  const subject = 'Booking Cancellation';
+  const html = template.bookingCancellation(guestName, cancelReason, hotelName);
+  await sendEmail(to, subject, html);
+};
+
+module.exports = { sendEmail, sendResetPasswordEmail, sendVerificationEmail, sendBookingConfirmationEmail, sendBookingCancellationEmail };

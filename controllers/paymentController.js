@@ -65,6 +65,8 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         lname: guestDetails.lname,
         phone: guestDetails.phone,
         email: guestDetails.email,
+        specialrequest: guestDetails.specialRequest,
+        gstNumber: guestDetails.gstNumber,
         paymentId: savedPayment._id,
         bookingMode: 'Online',
       });
@@ -73,7 +75,7 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       await sendBookingConfirmationEmail(
         guestDetails.email,
         `${guestDetails.fname} ${guestDetails.lname}`,
-        roomData.roomId,
+        roomData.roomNumber,
         roomData.roomType,
         roomData.checkInDate,
         roomData.checkOutDate,

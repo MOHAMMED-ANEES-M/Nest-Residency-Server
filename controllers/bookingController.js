@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
+const { sendBookingCancellationEmail } = require('../services/emailService');
 
 // Check availability of all rooms
 exports.checkAvailability = asyncHandler(async (req, res) => {
@@ -48,7 +49,7 @@ exports.checkAvailability = asyncHandler(async (req, res) => {
 
 // Book a room
 exports.bookRoom = asyncHandler(async (req, res) => {
-  const { roomId, checkInDate, checkOutDate, fname, lname, phone, email } = req.body;
+  const { roomNumber, checkInDate, checkOutDate, fname, lname, phone, email, gstNumber, specialRequest } = req.body;
 
   const checkIn = new Date(checkInDate);
   const checkOut = new Date(checkOutDate);
@@ -58,9 +59,15 @@ exports.bookRoom = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid check-in or check-out date' });
   }
 
-  // Check if the room is available by looking at existing bookings
+  // Step 1: Fetch the room details based on the roomNumber
+  const room = await Room.findOne({ roomNumber });
+  if (!room) {
+    return res.status(404).json({ message: 'Room not found' });
+  }
+
+  // Step 2: Check if the room is available by looking at existing bookings
   const existingBookings = await Booking.find({
-    roomId,
+    roomId: room._id,
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
     ],
@@ -71,18 +78,12 @@ exports.bookRoom = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Room is already booked for the selected dates' });
   }
 
-  // const payment = new Payment({
-  //   orderId,
-  //   paymentId,
-  //   amount,
-  //   currency: 'INR',
-  // });
-
-  // await payment.save();
-
-  // Create booking
+  // Step 3: Create booking with roomCategory
   const newBooking = new Booking({
-    roomId,
+    roomNumber,
+    roomType: room.roomType, 
+    gstNumber,
+    specialRequest,
     checkInDate,
     checkOutDate,
     bookingMode: 'Offline',
@@ -124,12 +125,12 @@ exports.cancelBooking = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Booking not found' });
   }
 
-  // Update the status and add cancelReason without modifying required fields
   booking.status = 'Cancelled';
   booking.cancelReason = req.body.cancelReason;
 
-  // Save the updated booking document
-  await booking.save({ validateModifiedOnly: true }); // Only validate modified fields
+  await booking.save({ validateModifiedOnly: true }); 
+
+  await sendBookingCancellationEmail(booking.email, `${booking.fname} ${booking.lname}`, booking.cancelReason, process.env.APP_NAME);
 
   res.json({ message: 'Booking cancelled successfully', booking });
 });
