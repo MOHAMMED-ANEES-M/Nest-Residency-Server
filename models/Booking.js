@@ -15,6 +15,7 @@ const BookingSchema = new mongoose.Schema({
   specialRequest: { type: String }, 
   gstNumber: { type: String }, 
   cancelReason: { type: String }, 
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Booking', BookingSchema);

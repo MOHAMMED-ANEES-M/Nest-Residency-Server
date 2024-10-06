@@ -87,7 +87,7 @@ exports.login = asyncHandler(async (req, res) => {
 
 exports.currentUser = asyncHandler(async (req,res) => {
     res.json(req.user)
-    // console.log('Current user:',req.user);
+    console.log('Current user:',req.user);
 })
 
 
