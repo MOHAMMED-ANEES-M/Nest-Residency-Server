@@ -92,7 +92,7 @@ exports.currentUser = asyncHandler(async (req,res) => {
 
 
 exports.requestPasswordReset = async (req, res) => {
-    const  email  = 'mhdaneeslm10@gmail.com';
+    const  email  = req.email;
 
     if (!email) {
         return res.status(400).json({ message: "Email is required" });
