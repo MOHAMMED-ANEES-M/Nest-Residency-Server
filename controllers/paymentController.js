@@ -39,7 +39,6 @@ exports.createOrder = asyncHandler(async (req, res) => {
 });
 
 
-// Verify the payment and create booking
 exports.verifyPayment = asyncHandler(async (req, res) => {
   const { razorId, paymentId, signature, amount, roomData, guestDetails } = req.body;
   const key_secret = process.env.RAZORPAY_KEY_SECRET;
