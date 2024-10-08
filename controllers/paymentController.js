@@ -5,12 +5,6 @@ const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
 const { sendBookingConfirmationEmail } = require('../services/emailService');
 
-// Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
-
 const hmac_sha256 = (data, key) => {
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(data);
@@ -19,8 +13,13 @@ const hmac_sha256 = (data, key) => {
 
 // Initiate payment
 exports.createOrder = asyncHandler(async (req, res) => {
+  
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+  
   const { amount } = req.body;
-  console.log('payment order body', req.body);
   
   const options = {
     amount: amount * 100,
@@ -40,6 +39,12 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
 
 exports.verifyPayment = asyncHandler(async (req, res) => {
+  
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+
   const { razorId, paymentId, signature, amount, roomData, guestDetails } = req.body;
   const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
