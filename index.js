@@ -1,6 +1,5 @@
 const express = require('express')
 const connectDB = require('./config/dbConnection');
-// const authRoutes = require('./routes/authRoutes');
 const cookieParser = require('cookie-parser');
 var cors = require('cors');
 const dotenv = require('dotenv').config()
