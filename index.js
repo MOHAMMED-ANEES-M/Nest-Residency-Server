@@ -11,8 +11,19 @@ const app=express()
 
 const port = process.env.PORT || 5001
 
-app.use(cors({ credentials: true, origin: "https://nestresidencycalicut.in" }))
-app.use(cookieParser());
+const allowedOrigins = ['https://nestresidencycalicut.in', 'https://nestresidencycalicut-llmcedxq4-anees-projects-f001e9a0.vercel.app'];
+
+app.use(cors({
+    credentials: true,
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
+}));app.use(cookieParser());
+
 app.use(express.json())
 
 app.use("/api", api)
