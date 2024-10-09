@@ -11,11 +11,13 @@ const app=express()
 
 const port = process.env.PORT || 5001
 
-app.use(cors({
-    origin: ['https://nestresidencycalicut.in', 'https://www.nestresidencycalicut.in'], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-    credentials: true,
-}));
+const corsOptions = {
+    origin: ['https://nestresidencycalicut.in', 'https://www.nestresidencycalicut.in'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json())
