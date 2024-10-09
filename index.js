@@ -12,8 +12,8 @@ const app=express()
 const port = process.env.PORT || 5001
 
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: ['https://nestresidencycalicut.in', 'https://www.nestresidencycalicut.in'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
     credentials: true,
 }));
 
