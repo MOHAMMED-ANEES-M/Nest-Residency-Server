@@ -11,7 +11,11 @@ const app=express()
 
 const port = process.env.PORT || 5001
 
-app.use(cors({ credentials: true, origin: "https://www.nestresidencycalicut.in/" }))
+app.use(cors({
+    origin: ['https://nestresidencycalicut.in', 'https://www.nestresidencycalicut.in'], // Allow your frontend domains
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed methods
+    credentials: true,
+}));
 app.use(cookieParser());
 app.use(express.json())
 
