@@ -1,7 +1,7 @@
 const express = require('express')
 const connectDB = require('./config/dbConnection');
 const cookieParser = require('cookie-parser');
-var cors = require('cors');
+const cors = require('cors');
 const dotenv = require('dotenv').config()
 const api = require('./services/api')
 const errorHandler = require('./middleware/errorHandler');
@@ -12,9 +12,9 @@ const app=express()
 const port = process.env.PORT || 5001
 
 const corsOptions = {
-    origin: ['https://nestresidencycalicut.in', 'https://www.nestresidencycalicut.in'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    origin: 'https://nestresidencycalicut.in',  
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,  
 };
 
 app.use(cors(corsOptions));
