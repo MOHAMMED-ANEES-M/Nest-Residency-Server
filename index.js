@@ -12,7 +12,7 @@ const app=express()
 const port = process.env.PORT || 5001
 
 const corsOptions = {
-    origin: 'http://localhost:3000',  
+    origin: 'https://nestresidencycalicut.in',  
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,  
 };
