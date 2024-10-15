@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const generateBookingId = require('./utils/generateBookingId');
 
 const BookingSchema = new mongoose.Schema({
-  bookingId: { type: String, required: true, default: generateBookingId },
+  bookingId: { type: String, required: true },
   roomNumber: { type: String, required: true },
   roomType: { type: String, required: true },
   checkInDate: { type: Date, required: true },

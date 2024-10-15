@@ -13,7 +13,7 @@ const verifyToken = asyncHandler(async (req, res, next) => {
             res.status(403); 
             throw new Error("Authentication failed");   
         }
-        req.user = user; 
+        req.id = user.userId; 
         next();
     });
 });

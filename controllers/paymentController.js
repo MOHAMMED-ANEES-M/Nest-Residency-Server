@@ -5,6 +5,19 @@ const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
 const { sendBookingConfirmationEmail } = require('../services/emailService');
 
+const generateBookingId = async () => {
+  const lastBooking = await Booking.findOne().sort({ bookingId: -1 });
+
+  let nextBookingId = '001001'; 
+
+  if (lastBooking) {
+    const lastIdNumber = parseInt(lastBooking.bookingId, 10);
+    nextBookingId = (lastIdNumber + 1).toString().padStart(6, '0'); 
+  }
+
+  return nextBookingId;
+};
+
 const hmac_sha256 = (data, key) => {
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(data);
@@ -29,7 +42,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
   try {
     const order = await razorpay.orders.create(options);
-    console.log('order', order);
+    // console.log('order', order);
     res.json(order);
   } catch (error) {
     console.log('order error', error);
@@ -60,7 +73,10 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       });
       const savedPayment = await payment.save();
 
+      const bookingId = await generateBookingId();
+
       const booking = new Booking({
+        bookingId,
         roomNumber: roomData.roomNumber,
         roomType: roomData.roomType,
         checkInDate: roomData.checkInDate,

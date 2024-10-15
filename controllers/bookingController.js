@@ -3,6 +3,19 @@ const Booking = require('../models/Booking');
 const Room = require('../models/Room');
 const { sendBookingCancellationEmail } = require('../services/emailService');
 
+const generateBookingId = async () => {
+  const lastBooking = await Booking.findOne().sort({ bookingId: -1 });
+
+  let nextBookingId = '001001'; 
+
+  if (lastBooking) {
+    const lastIdNumber = parseInt(lastBooking.bookingId, 10);
+    nextBookingId = (lastIdNumber + 1).toString().padStart(6, '0'); 
+  }
+
+  return nextBookingId;
+};
+
 // Check availability of all rooms
 exports.checkAvailability = asyncHandler(async (req, res) => {
   const { checkInDate, checkOutDate } = req.body;
@@ -68,7 +81,7 @@ exports.bookRoom = asyncHandler(async (req, res) => {
 
   // Step 2: Check if the room is available by looking at existing bookings
   const existingBookings = await Booking.find({
-    roomId: room._id,
+    roomNumber,
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
     ],
@@ -79,8 +92,11 @@ exports.bookRoom = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Room is already booked for the selected dates' });
   }
 
+  const bookingId = await generateBookingId();
+
   // Step 3: Create booking with roomCategory
   const newBooking = new Booking({
+    bookingId,
     roomNumber,
     roomType: room.roomType, 
     gstNumber,
