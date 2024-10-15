@@ -7,13 +7,14 @@ const refreshToken = asyncHandler(async (req, res, next) => {
     const prevToken = refreshToken;
     if (!prevToken) {
         res.status(400);
-        throw new Error("Couldn't find token");
+        throw new Error("Invalid token");
     }
     jwt.verify(String(prevToken), process.env.JWT_REFRESH_SECRET, (err, user) => {
         if (err) {
             res.status(403);
             throw new Error("Authentication failed");
         }
+        
         const newAccessToken = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_ACCESS_SECRET,
@@ -25,7 +26,7 @@ const refreshToken = asyncHandler(async (req, res, next) => {
             sameSite: 'lax',
             maxAge: 60 * 60 * 1000 
         });        
-        req.id = user._id;
+        req.id = user.userId;         
         next();
     });
 });
