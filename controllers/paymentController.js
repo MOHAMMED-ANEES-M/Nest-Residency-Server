@@ -3,7 +3,8 @@ const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
 const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
-const { sendBookingConfirmationEmail } = require('../services/emailService');
+const { sendBookingConfirmationEmail, sendAdminNewBookingNotification } = require('../services/emailService');
+const formatDate = require('../utils/formatDate');
 
 const generateBookingId = async () => {
   const lastBooking = await Booking.findOne().sort({ bookingId: -1 });
@@ -33,12 +34,16 @@ exports.createOrder = asyncHandler(async (req, res) => {
   });
   
   const { amount } = req.body;
+  const amountInPaise = Math.round(parseFloat(amount) * 100);
+  console.log(amountInPaise, 'amount');
   
   const options = {
-    amount: amount * 100,
+    amount: amountInPaise,
     currency: 'INR',
     receipt: crypto.randomBytes(10).toString('hex'),
   };
+  console.log(options,'options');
+  
 
   try {
     const order = await razorpay.orders.create(options);
@@ -95,14 +100,23 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       await sendBookingConfirmationEmail(
         guestDetails.email,
         `${guestDetails.fname} ${guestDetails.lname}`,
-        roomData.roomNumber,
         roomData.roomType,
-        roomData.checkInDate,
-        roomData.checkOutDate,
+        formatDate(roomData.checkInDate),
+        formatDate(roomData.checkOutDate),
         amountInINR,
         savedPayment.paymentId,
         process.env.APP_NAME
       );
+
+      await sendAdminNewBookingNotification(
+        `${guestDetails.fname} ${guestDetails.lname}`,
+        roomData.roomType,
+        formatDate(roomData.checkInDate),
+        formatDate(roomData.checkOutDate),
+        amountInINR,
+        bookingId,
+        savedPayment.paymentId
+      );      
 
       res.json({
         success: true,

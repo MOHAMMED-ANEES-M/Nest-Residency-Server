@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const generateBookingId = require('./utils/generateBookingId');
 
 const BookingSchema = new mongoose.Schema({
   bookingId: { type: String, required: true },
@@ -13,11 +12,19 @@ const BookingSchema = new mongoose.Schema({
   fname: { type: String, required: true },
   lname: { type: String, required: true },
   phone: { type: Number, required: true },
-  email: { type: String, required: true }, 
-  specialRequest: { type: String }, 
-  gstNumber: { type: String }, 
-  cancelReason: { type: String }, 
+  email: { type: String, required: true },
+  specialRequest: { type: String },
+  gstNumber: { type: String },
+  cancelReason: { type: String },
   createdAt: { type: Date, default: Date.now },
+});
+
+BookingSchema.pre('save', function (next) {
+  const now = new Date();
+  if (this.checkOutDate < now && this.status !== 'Checked Out') {
+    this.status = 'Checked Out';
+  }
+  next();
 });
 
 module.exports = mongoose.model('Booking', BookingSchema);

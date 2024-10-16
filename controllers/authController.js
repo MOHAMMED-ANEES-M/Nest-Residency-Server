@@ -67,7 +67,7 @@ exports.login = asyncHandler(async (req, res) => {
     const refreshToken = jwt.sign(
         { userId: user._id, email: user.email },
         process.env.JWT_REFRESH_SECRET,
-        { expiresIn: '7d' } 
+        { expiresIn: '30d' } 
     );
     res.cookie('accessToken', accessToken, {
         httpOnly: true,

@@ -1,4 +1,4 @@
-const Booking = require("../Booking");
+const Booking = require("../models/Booking");
 
 const generateBookingId = async () => {
   const lastBooking = await Booking.findOne().sort({ bookingId: -1 });

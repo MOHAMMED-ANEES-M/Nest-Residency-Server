@@ -1,4 +1,4 @@
-const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName) => `
+const bookingConfirmation = (guestName, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName) => `
   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
     <h2 style="color: #4CAF50;">Booking Confirmation - ${hotelName}</h2>
     <p>Dear ${guestName},</p>
@@ -10,10 +10,6 @@ const bookingConfirmation = (guestName, roomNumber, roomName, checkInDate, check
       <tr>
         <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Guest Name</td>
         <td style="padding: 12px; border: 1px solid #ddd;">${guestName}</td>
-      </tr>
-      <tr>
-        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Room Number</td>
-        <td style="padding: 12px; border: 1px solid #ddd;">${roomNumber}</td>
       </tr>
       <tr>
         <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Room Type</td>
@@ -69,4 +65,47 @@ const bookingCancellation = (guestName, cancelReason, hotelName) => `
   </div>
 `;
 
-module.exports = { bookingConfirmation, resetPassword, verifyEmail, bookingCancellation };
+const adminNewBookingNotification = (guestName, roomName, checkInDate, checkOutDate, totalPrice, bookingId, paymentId) => `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2 style="color: #4CAF50;">New Booking Notification</h2>
+    <p>Dear Admin,</p>
+    <p>A new booking has been successfully made. Below are the booking details:</p>
+    <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+      <tr style="background-color: #f2f2f2;">
+        <th colspan="2" style="padding: 12px; border: 1px solid #ddd; text-align: left;">Booking Details</th>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Guest Name</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${guestName}</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Room Type</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${roomName}</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Check-In Date</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${checkInDate}</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Check-Out Date</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${checkOutDate}</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Total Price</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${totalPrice} INR</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Booking ID</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${bookingId}</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Payment ID</td>
+        <td style="padding: 12px; border: 1px solid #ddd;">${paymentId}</td>
+      </tr>
+    </table>
+    <p>Best regards,</p>
+    <p><strong>${process.env.APP_NAME} Team</strong></p>
+  </div>
+`;
+
+module.exports = { bookingConfirmation, resetPassword, verifyEmail, bookingCancellation, adminNewBookingNotification };

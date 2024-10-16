@@ -63,7 +63,7 @@ exports.checkAvailability = asyncHandler(async (req, res) => {
 
 // Book a room
 exports.bookRoom = asyncHandler(async (req, res) => {
-  const { roomNumber, checkInDate, checkOutDate, fname, lname, phone, email, gstNumber, specialRequest } = req.body;
+  const { roomType, checkInDate, checkOutDate, fname, lname, phone, email, gstNumber, specialRequest } = req.body;
 
   const checkIn = new Date(checkInDate);
   const checkOut = new Date(checkOutDate);
@@ -73,32 +73,42 @@ exports.bookRoom = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid check-in or check-out date' });
   }
 
-  // Step 1: Fetch the room details based on the roomNumber
-  const room = await Room.findOne({ roomNumber });
-  if (!room) {
-    return res.status(404).json({ message: 'Room not found' });
+  // Step 1: Fetch all rooms of the requested room type
+  const availableRooms = await Room.find({ roomType });
+
+  if (availableRooms.length === 0) {
+    return res.status(404).json({ message: 'No rooms available for the selected room type' });
   }
 
-  // Step 2: Check if the room is available by looking at existing bookings
-  const existingBookings = await Booking.find({
-    roomNumber,
+  // Step 2: Find any rooms that are already booked for the selected dates
+  const overlappingBookings = await Booking.find({
+    roomNumber: { $in: availableRooms.map(room => room.roomNumber) },
     $or: [
       { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } }
     ],
     status: 'Booked'
   });
 
-  if (existingBookings.length > 0) {
-    return res.status(400).json({ message: 'Room is already booked for the selected dates' });
+  // Step 3: Get the room numbers that are already booked
+  const bookedRoomNumbers = overlappingBookings.map(booking => booking.roomNumber);
+
+  // Step 4: Filter available rooms that are not booked
+  const unbookedRooms = availableRooms.filter(room => !bookedRoomNumbers.includes(room.roomNumber));
+
+  if (unbookedRooms.length === 0) {
+    return res.status(400).json({ message: 'No rooms available for the selected dates' });
   }
+
+  // Step 5: Randomly select a room from the unbooked rooms
+  const randomRoom = unbookedRooms[Math.floor(Math.random() * unbookedRooms.length)];
 
   const bookingId = await generateBookingId();
 
-  // Step 3: Create booking with roomCategory
+  // Step 6: Create the booking with the selected room number and room type
   const newBooking = new Booking({
     bookingId,
-    roomNumber,
-    roomType: room.roomType, 
+    roomNumber: randomRoom.roomNumber, // Selected room number
+    roomType, // The requested room type
     gstNumber,
     specialRequest,
     checkInDate,

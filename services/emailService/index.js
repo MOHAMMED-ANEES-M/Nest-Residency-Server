@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const template = require('./template'); // Import the templates
+const template = require('./template'); 
 const dotenv = require('dotenv').config();
 
 const transport = nodemailer.createTransport({
@@ -30,9 +30,9 @@ const sendVerificationEmail = async (to, otp) => {
   await sendEmail(to, subject, html);
 };
 
-const sendBookingConfirmationEmail = async (to, guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice,paymentId, hotelName) => {
+const sendBookingConfirmationEmail = async (to, guestName, roomName, checkInDate, checkOutDate, totalPrice,paymentId, hotelName) => {
   const subject = 'Booking Confirmation';
-  const html = template.bookingConfirmation(guestName, roomNumber, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName);
+  const html = template.bookingConfirmation(guestName, roomName, checkInDate, checkOutDate, totalPrice, paymentId, hotelName);
   await sendEmail(to, subject, html);
 };
 
@@ -42,4 +42,10 @@ const sendBookingCancellationEmail = async (to, guestName, cancelReason, hotelNa
   await sendEmail(to, subject, html);
 };
 
-module.exports = { sendEmail, sendResetPasswordEmail, sendVerificationEmail, sendBookingConfirmationEmail, sendBookingCancellationEmail };
+const sendAdminNewBookingNotification = async (guestName, roomName, checkInDate, checkOutDate, totalPrice, bookingId, paymentId) => {
+  const subject = 'New Booking Notification';
+  const html = template.adminNewBookingNotification(guestName, roomName, checkInDate, checkOutDate, totalPrice, bookingId, paymentId);
+  await sendEmail(process.env.ADMIN_EMAIL, subject, html);
+};
+
+module.exports = { sendEmail, sendResetPasswordEmail, sendVerificationEmail, sendBookingConfirmationEmail, sendBookingCancellationEmail, sendAdminNewBookingNotification };

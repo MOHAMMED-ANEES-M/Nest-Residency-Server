@@ -14,6 +14,7 @@ const verifyToken = asyncHandler(async (req, res, next) => {
             throw new Error("Authentication failed");   
         }
         req.id = user.userId; 
+        console.log(req.id, 'req id');
         next();
     });
 });

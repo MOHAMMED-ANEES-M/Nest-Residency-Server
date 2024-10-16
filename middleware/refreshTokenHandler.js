@@ -26,7 +26,8 @@ const refreshToken = asyncHandler(async (req, res, next) => {
             sameSite: 'lax',
             maxAge: 60 * 60 * 1000 
         });        
-        req.id = user.userId;                 
+        req.id = user.userId;   
+        console.log(req.id, 'req id');
         next();
     });
 });
